@@ -59,6 +59,7 @@ public class GUI extends JFrame implements ActionListener {
 					String readLine = "";
 					String t  = "";
 					int count = 0;	
+					ArrayList <Matrix> data = new ArrayList<Matrix>();
 					ArrayList <Matrix> dataTrain = new ArrayList<Matrix>();
 					ArrayList <Matrix> dataTest = new ArrayList<Matrix>();
 					ArrayList <Matrix> targetTrain = new ArrayList<Matrix>();
@@ -67,6 +68,7 @@ public class GUI extends JFrame implements ActionListener {
 					while ((readLine = buffer.readLine()) != null) {
 						
 						double tmp [][] = {{Double.parseDouble(readLine.substring(readLine.lastIndexOf(" ")))}};
+						//data.add(new Matrix(tmp));
 						if(count<100)
 							targetTrain.add(new Matrix(tmp));
 						else
@@ -91,8 +93,18 @@ public class GUI extends JFrame implements ActionListener {
 					//{
 					//	target.get(i).show();
 					//}
+					/*double tmp [][] ={{1}};
+					data.add(new Matrix(tmp));
+					tmp = new double[][] {{2}};
+					data.add(new Matrix(tmp));
+					tmp = new double[][] {{3}};
+					data.add(new Matrix(tmp));
+					ArrayList<Matrix> ret = Utility.zscore(data);
+					ret.get(1).show();*/
+					
 					ANN neural = new ANN(3);
-					neural.training(dataTrain, targetTrain);
+					//neural.setTransfer("sigmoid");
+					neural.training(dataTrain, targetTrain,0.00001);
 					Matrix W [] = neural.getW();
 					Matrix b [] = neural.getb();
 					ArrayList<Double>[] x = (ArrayList<Double>[])new ArrayList[2];

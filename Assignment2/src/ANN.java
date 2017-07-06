@@ -4,7 +4,7 @@ public class ANN {
 	int layer;
 	Matrix W [];
 	Matrix b [];
-	
+	String transfer="";
 	public ANN(int layer)
 	{
 		this.layer = layer;
@@ -17,7 +17,125 @@ public class ANN {
 	{
 		return b;
 	}
-	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target)
+	
+	public void setTransfer(String name)
+	{
+		this.transfer = name;
+	}
+	
+	private Matrix sigmoid(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = 1.0/(1+Math.exp(-m.getElement(i, j)));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
+		return ret;
+	}
+	
+	private Matrix d_sigmoid(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = m.getElement(i, j)*(1-m.getElement(i,j));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
+		return ret;
+	}
+	
+	private Matrix tanh(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = (Math.exp(m.getElement(i,j))-Math.exp(m.getElement(i,j)))/(Math.exp(m.getElement(i,j))+Math.exp(m.getElement(i,j)));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
+		return ret;
+	}
+	
+	private Matrix d_tanh(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = (1-m.getElement(i,j)*m.getElement(i,j));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
+		return ret;
+	}
+	
+	private Matrix d_uniform(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		Matrix ret = new Matrix(row,col,1);
+		return ret;
+	}
+	
+	private Matrix calculateTransfer(Matrix m, String transferFunction)
+	{
+		Matrix ret;
+		switch(transferFunction)
+		{
+			case "sigmoid":
+				ret = sigmoid(m);
+				break;
+			case "tanh":
+				ret = tanh(m);
+				break;
+			default:
+				ret = m; 
+		}
+		return ret;
+		
+	}
+	
+	private Matrix calculate_d_Transfer(Matrix m, String transferFunction)
+	{
+		Matrix ret;
+		switch(transferFunction)
+		{
+			case "sigmoid":
+				ret = d_sigmoid(m);
+				break;
+			case "tanh":
+				ret = d_tanh(m);
+				break;
+			default:
+				ret = d_uniform(m); 
+		}
+		return ret;
+		
+	}
+	
+	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate)
 	{
 		int nodeIn = data.get(0).getCol();
 		int nodeOut = target.get(0).getCol();
@@ -62,14 +180,14 @@ public class ANN {
 					
 					z[l] = W[l-1].multiply(a[l-1]).plus(b[l-1]);
 					
-					a[l] = new Matrix(z[l].getData());
+					a[l] = this.calculateTransfer(z[l], this.transfer); //new Matrix(z[l].getData());
 					
 				}
 				
 				
 				mat = target.get(i);
 				g[L-1] = a[L-1].minus(mat);
-				d[L-1] = new Matrix(numNode[L-1],1,1);
+				d[L-1] = this.calculate_d_Transfer(a[L-1], this.transfer);//new Matrix(numNode[L-1],1,1);
 				square += g[L-1].multiply(g[L-1]).getElement(0, 0);
 				sum+= Math.abs(g[L-1].getElement(0, 0));
 				for(int l=L-2;l>=0;l--)
@@ -78,7 +196,7 @@ public class ANN {
 					db[l] = g[l+1].hadamard(d[l+1]);
 				
 					g[l] = W[l].transpose().multiply(g[l+1].hadamard(d[l+1]));
-					d[l] = new Matrix(numNode[l],1,1);
+					d[l] = this.calculate_d_Transfer(a[l], this.transfer);//new Matrix(numNode[l],1,1);
 
 				}
 				
@@ -94,8 +212,8 @@ public class ANN {
 				deltaW[l] = deltaW[l].multiplyNumber(1.0/data.size());
 				delta_b[l]= delta_b[l].multiplyNumber(1.0/data.size());
 				
-				W[l] = W[l].minus(deltaW[l].multiplyNumber(0.00001));
-				b[l] = b[l].minus(delta_b[l].multiplyNumber(0.00001));
+				W[l] = W[l].minus(deltaW[l].multiplyNumber(learningRate));
+				b[l] = b[l].minus(delta_b[l].multiplyNumber(learningRate));
 				
 			}
 			
