@@ -115,7 +115,7 @@ final public class Matrix {
         for (int i = 0; i < A.M; i++)
             for (int j = 0; j < B.N; j++)
             	for(int k = 0; k<A.N;k++)
-            		C.data[i][j] = A.data[i][k] * B.data[k][j];
+            		C.data[i][j] += A.data[i][k] * B.data[k][j];
         return C;
         
     }
@@ -211,7 +211,7 @@ final public class Matrix {
 		{
 			for(int j = 0; j<A.N;j++)
 			{
-				C.data[i][j] = A.data[i][j] + B.data[i][j];
+				C.data[i][j] = A.data[i][j] * B.data[i][j];
 			}
 			
 		}

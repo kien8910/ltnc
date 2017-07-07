@@ -52,13 +52,15 @@ public class Utility {
 		return ret;
 	}
 	
-	public static ArrayList<Matrix> minmax(ArrayList<Matrix> data)
+	public static ArrayList<Matrix> minmaxmap(ArrayList<Matrix> data, double minValue, double maxValue)
 	{
 		double [] max =  new double[data.get(0).getCol()];
+		double [] min =  new double[data.get(0).getCol()];
 		ArrayList<Matrix> ret = new ArrayList<Matrix>();
 		for(int i = 0;i<data.get(0).getCol();i++)
 		{
 			max[i] = data.get(0).getElement(0, i);
+			min[i] = data.get(0).getElement(0, i);
 		}
 		for(int i = 0;i<data.size();i++)
 		{
@@ -67,6 +69,11 @@ public class Utility {
 				if(max[j]<data.get(i).getElement(0, j))
 				{
 					max[j] = data.get(i).getElement(0, j);
+				}
+				
+				if(min[j]>data.get(i).getElement(0, j))
+				{
+					min[j] = data.get(i).getElement(0, j);
 				}
 			}
 			
@@ -77,13 +84,47 @@ public class Utility {
 			double tmp [][] = new double[1][data.get(i).getCol()];
 			for(int j = 0;j<data.get(i).getCol();j++)
 			{
-				tmp [0][j] =  (data.get(i).getElement(0, j))/max[j];
+				tmp [0][j] = (maxValue-minValue)*((data.get(i).getElement(0, j))-min[j])/(max[j]-min[j]) + minValue;
 				
 			}
 			ret.add(new Matrix(tmp));
 			
 			
 		}
+		return ret;
+	}
+	
+	public static Matrix tanh(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = (Math.exp(m.getElement(i,j))-Math.exp(-m.getElement(i,j)))/(Math.exp(m.getElement(i,j))+Math.exp(-m.getElement(i,j)));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
+		return ret;
+	}
+	
+	public static Matrix sigmoid(Matrix m)
+	{
+		int row = m.getRow();
+		int col = m.getCol();
+		double [][] tmp = new double[row][col];
+	
+		for(int i = 0;i<row;i++)
+		{
+			for(int j = 0;j<col;j++)
+			{
+				tmp[i][j] = 1.0/(1+Math.exp(-m.getElement(i, j)));
+			}
+		}
+		Matrix ret = new Matrix(tmp);
 		return ret;
 	}
 	
