@@ -40,7 +40,7 @@ public class GUI extends JFrame implements ActionListener {
 	
 	public GUI()
 	{
-		this.setSize(500,800);
+		this.setSize(600,400);
 		
 		FlowLayout layout = new FlowLayout();
 		
@@ -199,9 +199,9 @@ public class GUI extends JFrame implements ActionListener {
 					//System.out.println(a[2].getElement(0, 0)+","+targetTest.get(i).getElement(0, 0));
 				}
 				
-				  XYLineChart_AWT chart = new XYLineChart_AWT("Browser Usage Statistics",
-					         "Which Browser are you using?",x,y);
-					      chart.pack( );          
+				  XYLineChart_AWT chart = new XYLineChart_AWT("Multilayer Perceptron",
+					         "Resulting chart", x,y);
+				  	      chart.pack( );          
 					      RefineryUtilities.centerFrameOnScreen( chart );          
 					      chart.setVisible( true ); 
 			}
