@@ -173,17 +173,17 @@ public class ANN {
 			Matrix tmp = new Matrix(numNode[i+1],numNode[i],0.1);
 			Matrix tmp2 = new Matrix(numNode[i+1],1,0.1);
 			
-			W[i]= Matrix.random(numNode[i+1],numNode[i]).multiplyNumber(0.2);
+			W[i]= Matrix.random(numNode[i+1],numNode[i]).multiplyNumber(0.2);  // khoi tao W random, small
 			
 			deltaW[i] = Matrix.random(numNode[i+1],numNode[i]);
 			//tmp = randomMatrix(numNode[i+1],1);
-			b[i] = Matrix.random(numNode[i+1],1).multiplyNumber(0.2);
+			b[i] = Matrix.random(numNode[i+1],1).multiplyNumber(0.2);		// khoi tao b random, small
 			delta_b[i] = Matrix.random(numNode[i+1],1);
 		
 		}
 		
 		
-		for(int p = 1;p<=30000;p++)
+		for(int p = 1;p<=30000;p++)											//default 30,000 data points
 		{
 			double square = 0, sum = 0;
 			for(int l=0;l<L-1;l++)

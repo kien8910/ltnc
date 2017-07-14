@@ -132,7 +132,7 @@ public class GUI extends JFrame implements ActionListener {
 			ArrayList <Matrix> dataTest = new ArrayList<Matrix>();
 			ArrayList <Matrix> targetTrain = new ArrayList<Matrix>();
 			ArrayList <Matrix> targetTest = new ArrayList<Matrix>();
-			if(listTask.getSelectedIndex()==0)					// default task is selected
+			if(listTask.getSelectedIndex()==0)					// default task is selected = Regression
 			{
 				data = Utility.zscore(data);
 				if(listFunc.getSelectedIndex()==4)
@@ -205,7 +205,7 @@ public class GUI extends JFrame implements ActionListener {
 					      RefineryUtilities.centerFrameOnScreen( chart );          
 					      chart.setVisible( true ); 
 			}
-			else
+			else																// Task = Classification
 			{
 				ANN neural = new ANN(4);
 				neural.setTransfer("tanh");
