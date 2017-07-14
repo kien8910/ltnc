@@ -217,6 +217,25 @@ final public class Matrix {
 		}
 		return C;
 	}
+    
+    public int [] maxValueLocation()
+    {
+    	double tmp = this.data[0][0];
+    	int [] loc = new int[2];
+    	for(int i = 0;i<this.M;i++)
+    	{
+    		for(int j = 0;j<this.N;j++)
+    		{
+    			if(tmp<this.data[i][j])
+    			{
+    				tmp = this.data[i][j];
+    				loc[0]=i;
+    				loc[1]=j;
+    			}
+    		}
+    	}
+    	return loc;
+    }
     // print matrix to standard output
     public void show() {
         for (int i = 0; i < M; i++) {

@@ -18,6 +18,10 @@ public class ANN {
 		return b;
 	}
 	
+	public int getLayerNum()
+	{
+		return this.layer;
+	}
 	public void setTransfer(String name)
 	{
 		this.transfer = name;
@@ -39,7 +43,7 @@ public class ANN {
 		Matrix ret = new Matrix(tmp);
 		return ret;
 	}
-	
+	//dao ham sigmoid
 	private Matrix d_sigmoid(Matrix m)
 	{
 		int row = m.getRow();
@@ -57,6 +61,7 @@ public class ANN {
 		return ret;
 	}
 	
+	
 	private Matrix tanh(Matrix m)
 	{
 		int row = m.getRow();
@@ -67,13 +72,14 @@ public class ANN {
 		{
 			for(int j = 0;j<col;j++)
 			{
-				tmp[i][j] = (Math.exp(m.getElement(i,j))-Math.exp(m.getElement(i,j)))/(Math.exp(m.getElement(i,j))+Math.exp(m.getElement(i,j)));
+				tmp[i][j] = (Math.exp(m.getElement(i,j))-Math.exp(-m.getElement(i,j)))/(Math.exp(m.getElement(i,j))+Math.exp(-m.getElement(i,j)));
 			}
 		}
 		Matrix ret = new Matrix(tmp);
 		return ret;
 	}
 	
+	//dao ham tanh
 	private Matrix d_tanh(Matrix m)
 	{
 		int row = m.getRow();
@@ -137,10 +143,11 @@ public class ANN {
 	
 	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate)
 	{
-		int nodeIn = data.get(0).getCol();
-		int nodeOut = target.get(0).getCol();
-		int [] numNode  = {nodeIn,3,nodeOut};
+		int nodeIn = data.get(0).getRow();
+		int nodeOut = target.get(0).getRow();
+		int [] numNode  = {nodeIn,8,3,nodeOut};
 		int L = this.layer;
+	
 		Matrix W [] = new Matrix[L-1];
 		Matrix deltaW [] = new Matrix[L-1]; 
 		Matrix b [] = new Matrix[L-1];
@@ -154,15 +161,20 @@ public class ANN {
 		
 		for(int i = 0; i<L-1;i++)
 		{
-			W[i]= Matrix.random(numNode[i+1],numNode[i]);
+			Matrix tmp = new Matrix(numNode[i+1],numNode[i],0.1);
+			Matrix tmp2 = new Matrix(numNode[i+1],1,0.1);
+			
+			W[i]= Matrix.random(numNode[i+1],numNode[i]).multiplyNumber(0.2);
 			
 			deltaW[i] = Matrix.random(numNode[i+1],numNode[i]);
 			//tmp = randomMatrix(numNode[i+1],1);
-			b[i] = Matrix.random(numNode[i+1],1);
+			b[i] = Matrix.random(numNode[i+1],1).multiplyNumber(0.2);
 			delta_b[i] = Matrix.random(numNode[i+1],1);
+		
 		}
 		
-		for(int p = 1;p<=150;p++)
+		
+		for(int p = 1;p<=5000;p++)
 		{
 			double square = 0, sum = 0;
 			for(int l=0;l<L-1;l++)
@@ -179,17 +191,19 @@ public class ANN {
 				{
 					
 					z[l] = W[l-1].multiply(a[l-1]).plus(b[l-1]);
-					
+					//z[l].show();
 					a[l] = this.calculateTransfer(z[l], this.transfer); //new Matrix(z[l].getData());
-					
+		
 				}
+				
 				
 				
 				mat = target.get(i);
 				g[L-1] = a[L-1].minus(mat);
 				d[L-1] = this.calculate_d_Transfer(a[L-1], this.transfer);//new Matrix(numNode[L-1],1,1);
-				square += g[L-1].multiply(g[L-1]).getElement(0, 0);
+				//square += g[L-1].multiply(g[L-1]).getElement(0, 0);
 				sum+= Math.abs(g[L-1].getElement(0, 0));
+				
 				for(int l=L-2;l>=0;l--)
 				{
 					dW[l] = g[l+1].hadamard(d[l+1]).multiply(a[l].transpose());
@@ -205,8 +219,9 @@ public class ANN {
 					deltaW[l] = deltaW[l].plus(dW[l]);
 					delta_b[l] = delta_b[l].plus(db[l]);
 				}
-			}
 			
+			}
+		
 			for (int l = 0;l<L-1;l++)
 			{
 				deltaW[l] = deltaW[l].multiplyNumber(1.0/data.size());
