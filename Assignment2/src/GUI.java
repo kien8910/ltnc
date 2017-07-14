@@ -1,4 +1,4 @@
-
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 import org.jfree.ui.RefineryUtilities;
 
@@ -26,9 +27,11 @@ public class GUI extends JFrame implements ActionListener {
 	JButton btnLoad = new JButton("Load data");
 	JButton btnTrain = new JButton("Training");
 	JButton btnTest = new JButton("Test");
-	JLabel funcLabel = new JLabel("Function: ");
+	JLabel funcLabel = new JLabel("Function");
 	JLabel taskLabel = new JLabel("Task: ");
+	JLabel loopLabel = new JLabel("Number of iteration: ");
 	JLabel showLabel = new JLabel("");
+	JTextField loopTextField = new JTextField(10);
 	String[] funcStrings = { "sin(x)", "cos(x)", "sin(x)/x", "log(x)"};
 	String[] taskStrings = { "Regression","Classification"};
 
@@ -37,44 +40,35 @@ public class GUI extends JFrame implements ActionListener {
 	
 	public GUI()
 	{
-		this.setSize(500,500);
-		this.setTitle("MultiLayer Perceptron");
+		this.setSize(500,800);
 		
-		GridBagLayout layout = new GridBagLayout();
+		FlowLayout layout = new FlowLayout();
 		
 	    this.setLayout(layout); //Dinh dang GridBayLayout 
-		GridBagConstraints gbc = new GridBagConstraints();
+		//GridBagConstraints gbc = new GridBagConstraints();
 		
 	    
-	    gbc.fill = GridBagConstraints.HORIZONTAL;
-	    gbc.ipady = 10;
-	    gbc.insets = new Insets(0,3,10,0);;
+	   // gbc.fill = GridBagConstraints.HORIZONTAL;
+	    //gbc.ipady = 10;
+	   /* gbc.insets = new Insets(0,3,10,0);;
 	    
 	    gbc.gridx = 0;
-	    gbc.gridy = 0;
+	    gbc.gridy = 0;*/
 	    this.add(funcLabel);
-	    gbc.gridx = 1;
-	    this.add(listFunc,gbc); 
+	    this.add(listFunc); 
 	    
-	    gbc.gridx = 2;
 	    this.add(taskLabel);
-	    gbc.gridx = 3;
 	    this.add(listTask);
 	    
-	    gbc.gridx = 0;
-	    gbc.gridy = 3;
-	    this.add(btnLoad,gbc); 
-	    gbc.gridx = 1;
-	    this.add(btnGenerate,gbc); 
-	    gbc.gridx = 2;
-	    this.add(btnTrain,gbc);
-	    gbc.gridx = 3;
-	    gbc.ipady = 10;   
-	    this.add(btnTest,gbc);
-	    gbc.gridx = 0;
-	    gbc.gridy = 4;
-	    gbc.gridwidth = 5;
-	    this.add(showLabel,gbc);
+	    this.add(loopLabel);
+	    this.add(loopTextField);
+	    
+	    this.add(btnLoad); 
+	    this.add(btnGenerate); 
+	  
+	    this.add(btnTrain);
+	    this.add(btnTest);
+	    this.add(showLabel);
 	    btnLoad.addActionListener( this );	//Khai bao su kien click cho button btnLoad
 	    btnTrain.addActionListener(this);
 	    btnGenerate.addActionListener(this);
@@ -93,7 +87,7 @@ public class GUI extends JFrame implements ActionListener {
 				    File selectedFile = fc.getSelectedFile();
 				    System.out.println("Selected file: " + selectedFile.getName());
 				    
-				    try {											// read input file
+				    try {
 						BufferedReader buffer;
 						buffer = new BufferedReader(new FileReader(selectedFile));
 						String readLine = "";
@@ -132,7 +126,13 @@ public class GUI extends JFrame implements ActionListener {
 			ArrayList <Matrix> dataTest = new ArrayList<Matrix>();
 			ArrayList <Matrix> targetTrain = new ArrayList<Matrix>();
 			ArrayList <Matrix> targetTest = new ArrayList<Matrix>();
-			if(listTask.getSelectedIndex()==0)					// default task is selected = Regression
+			int loop = 10000;
+			if(!loopTextField.getText().trim().equals(""))
+			{
+				loop = Integer.parseInt(loopTextField.getText());
+			}
+			
+			if(listTask.getSelectedIndex()==0)
 			{
 				data = Utility.zscore(data);
 				if(listFunc.getSelectedIndex()==4)
@@ -154,7 +154,7 @@ public class GUI extends JFrame implements ActionListener {
 				}
 				else
 				{
-					dataTrain = data;							// test is same as train
+					dataTrain = data;
 					targetTrain = target;
 					dataTest = data;
 					targetTest = target;
@@ -163,7 +163,7 @@ public class GUI extends JFrame implements ActionListener {
 				//targetTrain = Utility.minmaxmap(dataTest, -1,1);
 				ANN neural = new ANN(3);
 				neural.setTransfer("tanh");
-				neural.training(dataTrain, targetTrain,0.9);
+				neural.training(dataTrain, targetTrain,0.9,loop);
 				Matrix W [] = neural.getW();
 				Matrix b [] = neural.getb();
 				ArrayList<Double>[] x = (ArrayList<Double>[])new ArrayList[2];
@@ -199,22 +199,27 @@ public class GUI extends JFrame implements ActionListener {
 					//System.out.println(a[2].getElement(0, 0)+","+targetTest.get(i).getElement(0, 0));
 				}
 				
-				  XYLineChart_AWT chart = new XYLineChart_AWT("Neural Networks",
-					         "Resulting chart",x,y);
+				  XYLineChart_AWT chart = new XYLineChart_AWT("Browser Usage Statistics",
+					         "Which Browser are you using?",x,y);
 					      chart.pack( );          
 					      RefineryUtilities.centerFrameOnScreen( chart );          
 					      chart.setVisible( true ); 
 			}
-			else																// Task = Classification
+			else
 			{
 				ANN neural = new ANN(4);
 				neural.setTransfer("tanh");
-				neural.training(data, target,0.05);
+				neural.training(data, target,0.05,loop);
 				Matrix W [] = neural.getW();
 				Matrix b [] = neural.getb();
 				int count = 0;
+				int dataPoint [][] = new int [300][300];
 				for(int i = 0;i<data.size();i++)
 				{
+					int tmp1 = (int)((data.get(i).getElement(0, 0)+3)*50);
+					int tmp2 = (int)((data.get(i).getElement(1, 0)+3)*50);
+					
+					dataPoint [tmp1][tmp2] = target.get(i).maxValueLocation()[0]==0?1:2;
 					//dataTest.get(i).show();
 					Matrix mat = data.get(i);
 					Matrix a [] = new Matrix[neural.getLayerNum()];
@@ -245,16 +250,70 @@ public class GUI extends JFrame implements ActionListener {
 				}
 				System.out.println(count);
 				
+				int color [][] = new int [320][320];
+				int numloop = 0;
+				for(double i = -3;i<3;i=i+0.02)
+				{
+					for(double j=-3;j<3;j=j+0.02)
+					{
+						double [][]tmpdata = new double[][]{{i},{j}};
+						Matrix mat = new Matrix(tmpdata);
+						Matrix a [] = new Matrix[neural.getLayerNum()];
+						Matrix z [] = new Matrix[neural.getLayerNum()];
+						
+						a[0] = mat;
+						for(int l = 1; l<neural.getLayerNum();l++)
+						{
+							
+							z[l] = W[l-1].multiply(a[l-1]).plus(b[l-1]);
+							
+							a[l] = Utility.tanh(new Matrix(z[l].getData()));
+							
+						}
+						//a[neural.getLayerNum()-1].show();
+						//System.out.println();
+						
+						//target.get(i).show();
+						//System.out.println();
+						int loc1[] = a[neural.getLayerNum()-1].maxValueLocation();
+						
+						//System.out.println("("+(i+3)*50+","+(j+3)*50);
+						
+						if(loc1[0]==0)
+						{
+							color[(int)((i+3)*50)][(int)((j+3)*50)]=1;
+						}
+						else
+						{
+							color[(int)((i+3)*50)][(int)((j+3)*50)]=2;
+						}
+						numloop++;
+					}
+					//dataTest.get(i).show();
+				
+					
+					//System.out.println(a[2].getElement(0, 0)+","+targetTest.get(i).getElement(0, 0));
+				}
+				
+				System.out.println("loop:"+numloop);
+			    Boundary points = new Boundary(color,dataPoint);
+			    JFrame frame = new JFrame("Boundary");
+			    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			    frame.add(points);
+			    frame.setSize(300, 300);
+			    frame.setLocationRelativeTo(null);
+			    frame.setVisible(true);
+				
 			}
 		}
 		else if(e.getSource()==btnGenerate)
 		{
 			String listData = "";
-			if(listTask.getSelectedIndex()==0)				// default task = Regression
+			if(listTask.getSelectedIndex()==0)						// default task is selected = Regression
 			{
 				double tmp = (4*Math.PI)/200;
 				double start = 0;
-				if(listFunc.getSelectedIndex()==2)			// f = sinx/x
+				if(listFunc.getSelectedIndex()==2)
 				{
 					start = Math.PI;
 				}
@@ -346,7 +405,6 @@ public class GUI extends JFrame implements ActionListener {
 	public static void main (String args [])
 	{
 		GUI g = new GUI();
-		g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		g.setVisible(true);
 	}
 }

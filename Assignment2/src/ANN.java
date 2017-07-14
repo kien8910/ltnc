@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 
 public class ANN {
@@ -142,7 +141,7 @@ public class ANN {
 		
 	}
 	
-	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate)
+	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate, int loop)
 	{
 		int nodeIn = data.get(0).getRow();
 		int nodeOut = target.get(0).getRow();
@@ -173,17 +172,17 @@ public class ANN {
 			Matrix tmp = new Matrix(numNode[i+1],numNode[i],0.1);
 			Matrix tmp2 = new Matrix(numNode[i+1],1,0.1);
 			
-			W[i]= Matrix.random(numNode[i+1],numNode[i]).multiplyNumber(0.2);  // khoi tao W random, small
+			W[i]= Matrix.random(numNode[i+1],numNode[i]).multiplyNumber(0.2);
 			
 			deltaW[i] = Matrix.random(numNode[i+1],numNode[i]);
 			//tmp = randomMatrix(numNode[i+1],1);
-			b[i] = Matrix.random(numNode[i+1],1).multiplyNumber(0.2);		// khoi tao b random, small
+			b[i] = Matrix.random(numNode[i+1],1).multiplyNumber(0.2);
 			delta_b[i] = Matrix.random(numNode[i+1],1);
 		
 		}
 		
 		
-		for(int p = 1;p<=30000;p++)											//default 30,000 data points
+		for(int p = 1;p<=loop;p++)
 		{
 			double square = 0, sum = 0;
 			for(int l=0;l<L-1;l++)
@@ -268,4 +267,3 @@ public class ANN {
 		
 	}
 }
-
