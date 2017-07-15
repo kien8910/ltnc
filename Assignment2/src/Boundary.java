@@ -46,8 +46,8 @@ public class Boundary extends JPanel {
 
 	g2d.setColor(Color.black);
     Dimension size = getSize();
-    int w = size.width ;
-    int h = size.height;
+    int w = 300;//size.width;
+    int h = 300;//size.height;
     g2d.setStroke(new BasicStroke(1));
    
 	g2d.drawLine(w/2, 0, w/2, h);

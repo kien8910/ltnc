@@ -141,18 +141,18 @@ public class ANN {
 		
 	}
 	
-	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate, int loop)
+	public void training(ArrayList<Matrix> data, ArrayList<Matrix> target, double learningRate, int loop, double lambda)
 	{
 		int nodeIn = data.get(0).getRow();
 		int nodeOut = target.get(0).getRow();
 		int [] numNode = new int[this.layer];
 		if(this.layer==4)
 		{
-			numNode= new int []{nodeIn,8,3,nodeOut};
+			numNode= new int []{nodeIn,8,8,nodeOut};
 		}
 		else
 		{
-			numNode= new int []{nodeIn,3,nodeOut};
+			numNode= new int []{nodeIn,8,nodeOut};
 		}
 		int L = this.layer;
 	
@@ -232,7 +232,7 @@ public class ANN {
 		
 			for (int l = 0;l<L-1;l++)
 			{
-				deltaW[l] = deltaW[l].multiplyNumber(1.0/data.size());
+				deltaW[l] = deltaW[l].multiplyNumber(1.0/data.size()).plus(W[l].multiplyNumber(lambda));
 				delta_b[l]= delta_b[l].multiplyNumber(1.0/data.size());
 				
 				W[l] = W[l].minus(deltaW[l].multiplyNumber(learningRate));

@@ -30,9 +30,13 @@ public class GUI extends JFrame implements ActionListener {
 	JLabel funcLabel = new JLabel("Function");
 	JLabel taskLabel = new JLabel("Task: ");
 	JLabel loopLabel = new JLabel("Number of iteration: ");
+	JLabel learningRateLabel = new JLabel("Learning Rate: ");
+	JLabel lambdaLabel = new JLabel("Lambda: ");
 	JLabel showLabel = new JLabel("");
 	JTextField loopTextField = new JTextField(10);
-	String[] funcStrings = { "sin(x)", "cos(x)", "sin(x)/x", "log(x)"};
+	JTextField learningRateTextField = new JTextField(5);
+	JTextField lambdaTextField = new JTextField(5);
+	String[] funcStrings = { "sin(x)", "cos(x)", "sin(x)/x"};
 	String[] taskStrings = { "Regression","Classification"};
 
 	JComboBox listFunc = new JComboBox(funcStrings);
@@ -40,7 +44,7 @@ public class GUI extends JFrame implements ActionListener {
 	
 	public GUI()
 	{
-		this.setSize(600,400);
+		this.setSize(900,400);
 		
 		FlowLayout layout = new FlowLayout();
 		
@@ -62,12 +66,18 @@ public class GUI extends JFrame implements ActionListener {
 	    
 	    this.add(loopLabel);
 	    this.add(loopTextField);
-	    
+	    loopTextField.setText("10000");
+	    this.add(learningRateLabel);
+	    this.add(learningRateTextField);
+	    learningRateTextField.setText("0.9");
+	    this.add(lambdaLabel);
+	    this.add(lambdaTextField);
+	    lambdaTextField.setText("0.0001");
 	    this.add(btnLoad); 
 	    this.add(btnGenerate); 
 	  
 	    this.add(btnTrain);
-	    this.add(btnTest);
+//	    this.add(btnTest);
 	    this.add(showLabel);
 	    btnLoad.addActionListener( this );	//Khai bao su kien click cho button btnLoad
 	    btnTrain.addActionListener(this);
@@ -81,6 +91,8 @@ public class GUI extends JFrame implements ActionListener {
 		
 		if(e.getSource()==btnLoad)
 		{
+			data.clear();
+			target.clear();
 			fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
 			 int returnVal = fc.showOpenDialog(GUI.this);
 			 if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -96,7 +108,7 @@ public class GUI extends JFrame implements ActionListener {
 					
 						//count++;
 						while ((readLine = buffer.readLine()) != null) {
-							
+							readLine = readLine.replaceAll("\\s+$", "");
 							double tmp [][] = {{Double.parseDouble(readLine.substring(readLine.lastIndexOf(" ")))}};
 							target.add(new Matrix(tmp));
 							
@@ -127,9 +139,21 @@ public class GUI extends JFrame implements ActionListener {
 			ArrayList <Matrix> targetTrain = new ArrayList<Matrix>();
 			ArrayList <Matrix> targetTest = new ArrayList<Matrix>();
 			int loop = 10000;
+			double learningRate = 0.9;
+			double lambda = 0.0001;
 			if(!loopTextField.getText().trim().equals(""))
 			{
 				loop = Integer.parseInt(loopTextField.getText());
+			}
+			
+			if(!learningRateTextField.getText().trim().equals(""))
+			{
+				learningRate = Double.parseDouble(learningRateTextField.getText());
+			}
+			
+			if(!lambdaLabel.getText().trim().equals(""))
+			{
+				lambda = Double.parseDouble(lambdaTextField.getText());
 			}
 			
 			if(listTask.getSelectedIndex()==0)
@@ -163,7 +187,7 @@ public class GUI extends JFrame implements ActionListener {
 				//targetTrain = Utility.minmaxmap(dataTest, -1,1);
 				ANN neural = new ANN(3);
 				neural.setTransfer("tanh");
-				neural.training(dataTrain, targetTrain,0.9,loop);
+				neural.training(dataTrain, targetTrain,learningRate,loop,lambda);
 				Matrix W [] = neural.getW();
 				Matrix b [] = neural.getb();
 				ArrayList<Double>[] x = (ArrayList<Double>[])new ArrayList[2];
@@ -209,7 +233,7 @@ public class GUI extends JFrame implements ActionListener {
 			{
 				ANN neural = new ANN(4);
 				neural.setTransfer("tanh");
-				neural.training(data, target,0.05,loop);
+				neural.training(data, target,learningRate,loop,lambda);
 				Matrix W [] = neural.getW();
 				Matrix b [] = neural.getb();
 				int count = 0;
@@ -250,7 +274,7 @@ public class GUI extends JFrame implements ActionListener {
 				}
 				System.out.println(count);
 				
-				int color [][] = new int [320][320];
+				int color [][] = new int [300][300];
 				int numloop = 0;
 				for(double i = -3;i<3;i=i+0.02)
 				{
@@ -300,7 +324,7 @@ public class GUI extends JFrame implements ActionListener {
 			    JFrame frame = new JFrame("Boundary");
 			    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			    frame.add(points);
-			    frame.setSize(300, 300);
+			    frame.setSize(350, 350);
 			    frame.setLocationRelativeTo(null);
 			    frame.setVisible(true);
 				
@@ -308,6 +332,8 @@ public class GUI extends JFrame implements ActionListener {
 		}
 		else if(e.getSource()==btnGenerate)
 		{
+			data.clear();
+			target.clear();
 			String listData = "";
 			if(listTask.getSelectedIndex()==0)						// default task is selected = Regression
 			{
